@@ -1,0 +1,209 @@
+Camera degradation health score; "blur, exposure, entropy, detector, confidence; Computer vision, ADAS camera
+
+Bước 1 · Chuẩn bị
+Về bài lab này
+Đo tác động của một lỗi sensor, trình bày bằng chứng benchmark và đề xuất quyết định kỹ thuật.
+Bạn làm được gì sau bài này
+
+    Tạo được demo hoặc benchmark nhỏ với ít nhất một metric định lượng.
+    Giải thích một failure case của sensor và tác động tới thuật toán hoặc tính năng.
+    Trình bày quyết định kỹ thuật dựa trên kết quả nhóm đo và giới hạn của nguồn tham khảo.
+
+Mục tiêu của lab: Chọn một bài toán sensor trong xe ADAS, robot mặt đất hoặc drone; tìm paper/repository liên quan; chạy một demo hoặc benchmark nhỏ; và giải thích kết quả trước lớp. Sensor ở đây là hệ đo có lỗi và giới hạn: chất lượng dữ liệu, I/O, latency, calibration, đồng bộ thời gian hoặc điều kiện hoạt động đều có thể làm tính năng phía sau suy giảm.
+
+Mỗi nhóm gồm đúng 5 thành viên, có 120 phút làm việc và 3-5 phút trình bày. Cuối buổi cần có báo cáo hoặc slide ngắn, log/ảnh/plot chứng minh đã chạy, ít nhất một metric, một failure case và một đề xuất cải tiến. Cả 5 thành viên dùng chung repository, nhưng mỗi người nộp một bản riêng trên VLearn. Mục tiêu là có bằng chứng kiểm tra được và giải thích được trade-off thực tế, không phải đạt một con số đẹp.
+
+Thời gian: 0-15 phút. Kết quả cần có: Một bài toán đủ hẹp để thử trong lớp, một claim ban đầu, metric dự định đo và phân công nhóm.
+Nhóm sẽ kiểm tra điều gì?
+
+Trước khi tìm thuật toán, hãy chọn tình huống sensor có thể sai và tính năng nào sẽ chịu ảnh hưởng. Câu “camera kém khi trời mưa” quá rộng để đo. Một claim hữu ích phải chỉ ra điều kiện thay đổi và dấu hiệu quan sát; ví dụ, “khi ảnh bị nhòe mạnh hơn, blur score thay đổi và detector confidence có thể giảm”. Claim là giả thuyết để thử, không phải kết luận đã được chứng minh.
+
+Trong lab này, baseline là điều kiện dùng để so sánh, còn degraded condition là điều kiện có lỗi được tạo ra hoặc quan sát được. Hai điều kiện phải dùng cùng cách tính metric. Nếu mỗi điều kiện dùng ảnh, cấu hình hoặc cách tính khác nhau, nhóm sẽ khó giải thích phần chênh lệch đến từ sensor hay từ cách thử.
+
+    1. Chọn một chủ đề T1-T8 ở Bước 4 và ghi rõ nền tảng: xe ADAS, robot mặt đất hoặc drone. Chọn một chủ đề giúp nhóm dồn thời gian vào bằng chứng thay vì ghép nhiều bài toán chưa hoàn tất.
+    2. Chỉ định sensor và failure case sẽ kiểm tra: camera, LiDAR, radar, sonar/ToF hoặc multi-sensor; chẳng hạn glare, night, fog, rain, packet loss, rolling shutter, timestamp offset, calibration drift, radar ghost hay range timeout.
+    3. Viết claim và metric vào cùng một dòng. Nêu metric sẽ tăng hay giảm theo dự đoán, đơn vị đo và cách so sánh baseline với điều kiện lỗi. Nếu chưa có nhãn chuẩn, chọn metric proxy có thể tính được và ghi rõ nó thay thế cho điều gì.
+    4. Phân công đủ 5 thành viên vào các việc tìm tài liệu, chạy code, ghi benchmark và trình bày. Ghi phần việc của từng người vào bảng; nhiều người có thể cùng phụ trách một việc.
+
+Nhóm cần chốt	Ghi ngắn trước khi tiếp tục
+Nền tảng, tính năng, sensor	Xe ADAS/robot/drone; tính năng nào; sensor nào?
+Failure case	Lỗi xuất hiện trong điều kiện nào?
+Claim ban đầu	Thay đổi gì → metric dự kiến thay đổi ra sao?
+Metric và đơn vị	Đo bằng công thức/cách tính nào?
+Baseline và điều kiện lỗi	Hai cấu hình sẽ so sánh là gì?
+Phân công 5 thành viên	Ai đọc nguồn, chạy thử, ghi số, trình bày?
+
+Tự kiểm tra: Một người ngoài nhóm đọc bảng trên phải chỉ ra được nhóm sẽ thay đổi yếu tố nào và đo điều gì. Nếu chưa trả lời được, thu hẹp bài toán trước khi chuyển sang tìm paper/repo.
+
+Bước 2 · Tìm paper/repository và chốt đường chạy
+
+Thời gian: 15-45 phút. Kết quả cần có: Link nguồn, tóm tắt phương pháp và kế hoạch setup khả thi trong lớp.
+Nguồn nào giúp nhóm chạy được trong thời gian còn lại?
+
+Đề lab yêu cầu tìm paper hoặc repository mới, nhưng chỉ đọc tên thuật toán chưa đủ để tạo bằng chứng. README, dữ liệu mẫu và lệnh chạy cho biết nhóm có thể tái hiện phần nào trong 120 phút. Hãy kiểm tra input, output và giả định của phương pháp trước khi cài đặt: nếu repo đòi model hoặc dataset lớn mà lớp không có sẵn, nhóm vẫn có thể dùng benchmark mô phỏng nhỏ. Khi ấy phải nói rõ metric proxy đang đo điều gì, và nó chưa chứng minh được điều gì về hệ thống hoàn chỉnh.
+
+Paper có thể báo cáo kết quả trên một dataset hoặc phần cứng khác. Đó là kết luận của nguồn. Số đo chạy tại lớp là kết quả của nhóm. Giữ hai loại bằng chứng tách biệt ngay trong ghi chép để khi pitch không biến một con số trích dẫn thành kết quả tự đo.
+
+    1. Tìm bằng từ khóa của chủ đề ở Bước 4. Chọn một paper/repo có liên hệ trực tiếp với sensor và failure case đã chốt; lưu link đúng nguồn đã đọc.
+    2. Đọc abstract/README và phần chạy thử. Ghi input, output, dataset, metric, yêu cầu phần cứng/phần mềm, lệnh chạy và limitation được nguồn nêu. Không tự gán limitation chưa thấy trong nguồn cho tác giả.
+    3. Chọn đường chạy tối thiểu: demo có sẵn, script nhỏ dùng dữ liệu mẫu, hoặc mô phỏng degradation/calibration/log. Nếu chuyển sang mô phỏng, ghi rõ vì sao đường chạy gốc không phù hợp thời gian và proxy nào vẫn kiểm tra được claim ban đầu.
+    4. Lưu khả năng tái hiện: link paper/repo, commit hoặc phiên bản, dataset hoặc cách tạo dữ liệu, cấu hình và lệnh thực sự định dùng. Sau khi chạy ở Bước 4, cập nhật lại nếu có thay đổi.
+
+Câu hỏi khi đọc nguồn	Ghi chép tối thiểu
+Phương pháp nhận gì và tạo gì?	Input → output
+Nguồn đo chất lượng bằng gì?	Tên metric, dữ liệu, điều kiện đo
+Chạy được ở lớp không?	Lệnh, dữ liệu, thời gian, giới hạn phần cứng
+Nhóm sẽ tái hiện phần nào?	Demo gốc hay benchmark mô phỏng; metric thật hay proxy
+Cần trích lại gì khi báo cáo?	Link, commit/version, dataset, lệnh chạy
+
+Nguồn gợi ý trong PDF: Đây là danh sách để tra cứu, không phải các nguồn nhóm đã dùng. Ghi link chính xác của tài liệu thực sự đọc vào báo cáo.
+
+    S1: NVIDIA Jetson AGX Orin specification - giới hạn camera, USB, PCIe và Ethernet cho embedded robotics.
+    S2: PX4 Distance Sensors / Rangefinders - LiDAR-Lite, sonar, LightWare, TeraRanger và ghi chú tích hợp trên drone.
+    S3: Basler camera documentation - USB3, GigE, MIPI CSI-2 và cấu hình camera.
+    S4: Texas Instruments mmWave automotive radar references - ứng dụng và interface radar cho ADAS/robot.
+    S5: Dong và cộng sự, CVPR 2023 - benchmark 3D corruption robustness: KITTI-C, nuScenes-C, Waymo-C.
+    S6: MuFoRa, SemanticSpray++, MUSES - dataset đa cảm biến cho thời tiết bất lợi và uncertainty.
+    S7: Galibr 2024, CalibRefine 2025, DF-Calib 2025 - LiDAR-camera calibration targetless/online.
+    S8: Heidbrink và cộng sự, EuRAD 2024 - radar auto-annotation từ camera và LiDAR tham chiếu.
+    S9: Huai và cộng sự, 2021 - rolling-shutter camera-IMU spatiotemporal calibration.
+
+Tự kiểm tra: Nhóm có thể nói ngắn gọn “phương pháp nhận gì, trả gì, đo bằng gì” và chỉ ra lệnh hoặc phép thử sẽ chạy. Nếu chưa có đường chạy rõ ràng, quay về một benchmark mô phỏng nhỏ đã được đề lab cho phép.
+
+Bước 3 · Thiết kế benchmark có đối chứng
+
+Thời gian: Nằm trong giai đoạn chạy 45-95 phút. Kết quả cần có: Cấu hình baseline, mức lỗi, công thức metric và cách lưu bằng chứng.
+Vì sao cần cố định điều kiện so sánh?
+
+Benchmark ở đây không cần quy mô lớn; nó cần trả lời claim nhóm đã đặt. Một phép thử dễ đọc là giữ nguyên mẫu dữ liệu và pipeline, sau đó thay đổi một loại lỗi hoặc một mức perturbation. Chẳng hạn, với LiDAR, có thể tăng tỷ lệ point dropout trên cùng một point cloud và theo dõi point density. Với calibration, có thể thay đổi extrinsic từ giá trị baseline rồi đo reprojection error. Nếu đồng thời thay đổi nguồn dữ liệu, model và ngưỡng đánh giá, nhóm sẽ không biết yếu tố nào gây ra khác biệt.
+
+Metric là số đo dùng để so sánh. Hãy viết định nghĩa của nó trước khi chạy, kể cả khi chỉ là proxy. Point density hoặc blur score cho biết dữ liệu đầu vào suy giảm như thế nào, nhưng tự nó chưa chứng minh mAP của model thật giảm bao nhiêu. Detector confidence cũng không tự động là mAP. Khi không có ground truth, hãy nói “proxy metric” và chỉ kết luận trong phạm vi số đo đó.
+Dữ liệu và mức lỗi nên được ghi thế nào?
+
+Đề lab cho phép dùng ảnh/video, point cloud, chuỗi rangefinder, log cảm biến hoặc dữ liệu tổng hợp. Với dữ liệu tổng hợp, lưu cách tạo và tham số mức lỗi; với dữ liệu thật, lưu mẫu hoặc nguồn được phép dùng. Baseline phải đứng cạnh ít nhất một điều kiện lỗi. Nếu đủ thời gian, tạo nhiều mức lỗi để thấy xu hướng thay vì chỉ hai điểm. Tên mức lỗi cần thể hiện tham số thực tế, ví dụ “offset 50 ms” hoặc “yaw lệch 1°”, không chỉ “mức 1”.
+
+    1. Chọn dữ liệu và lưu cấu hình baseline. Dùng một tập mẫu nhỏ đủ để chạy lặp lại trong lớp. Ghi số mẫu, nguồn hoặc quy tắc tạo dữ liệu và thông số sensor liên quan.
+    2. Tạo các điều kiện lỗi từ cùng baseline. Thay một yếu tố có chủ đích; ghi mức blur/dropout/offset/drift/timeout hoặc cấu hình camera đúng theo chủ đề đã chọn.
+    3. Định nghĩa metric và đơn vị trước khi xem kết quả. Nêu chiều tốt/xấu của metric, và liệu metric đó phản ánh sensor health, chất lượng thuật toán hay tài nguyên hệ thống.
+    4. Chuẩn bị bằng chứng tái hiện: lưu lệnh chạy, cấu hình, log, ảnh trước/sau hoặc plot. Nếu phép thử có yếu tố ngẫu nhiên, ghi seed hoặc lặp lại để người đọc hiểu độ ổn định của số đo.
+
+Điều kiện	Tham số thay đổi	Metric (đơn vị)	Bằng chứng cần lưu	Điều metric cho phép kết luận
+Baseline	Không chủ động gây lỗi	Giá trị đo được	Log/ảnh/plot	Mốc so sánh
+Lỗi A	Tham số và mức cụ thể	Giá trị đo được	Log/ảnh/plot	Chênh lệch với baseline
+Lỗi B, nếu có	Tham số và mức cụ thể	Giá trị đo được	Log/ảnh/plot	Xu hướng khi lỗi tăng
+
+Tự kiểm tra: Trước khi chạy, người đo metric phải biết cần điền số vào cột nào và diễn giải “tốt hơn/xấu hơn” ra sao. Khi bảng đã có ít nhất baseline và một mức lỗi, nhóm mới có cơ sở để phân tích failure case ở Bước 5.
+
+Bước 4 · Chạy một chủ đề và ghi kết quả
+
+Thời gian: 45-95 phút, bao gồm chuẩn bị ở Bước 3. Kết quả cần có: Demo hoặc benchmark chạy được, có log/ảnh/plot và ít nhất một kết quả số.
+
+Chỉ thực hiện một trong tám chủ đề dưới đây. Mỗi chủ đề có benchmark tối thiểu và một thử thách mở rộng. Ưu tiên hoàn thành phần tối thiểu trước; phần mở rộng không thay thế cho bằng chứng chạy. Khi một phương pháp không có nhãn tham chiếu, dùng metric phù hợp với dữ liệu đang có thay vì ghi precision/recall không thể kiểm chứng.
+
+    1. Mở dữ liệu hoặc demo đã chọn ở Bước 2 và xác nhận baseline chạy được trước khi tạo lỗi.
+    2. Chạy từng điều kiện theo thiết kế Bước 3, lưu tham số, log và hình/plot tương ứng. Không đổi metric giữa các điều kiện.
+    3. Điền số vào bảng kết quả ngay sau mỗi lần chạy và kiểm tra hướng thay đổi so với claim ban đầu.
+    4. Chọn một trường hợp đáng phân tích: kết quả giảm rõ, số đo không đổi dù dự đoán có đổi, hoặc một lỗi mà metric hiện tại không phát hiện được.
+
+Nếu chọn T1, sức khỏe camera thay đổi ra sao?
+
+Camera ADAS có thể gặp glare, night, rain, blur, rolling shutter hoặc lens bẩn. Dùng ảnh/video mẫu và tạo 3-5 mức suy giảm bằng blur, brightness, rain/noise. Đo blur score, saturation ratio, entropy; nếu có detector, đo thêm confidence hoặc proxy cho mAP và nêu rõ giới hạn của proxy. Đầu ra là bảng hoặc ảnh trước/sau cùng nhận xét khi nào nên giảm trọng số camera. Mở rộng: thử ngưỡng theo daytime/nighttime hoặc so với confidence của VLM/vision model. Từ khóa: camera image quality assessment for autonomous driving, blur detection, lens soiling detection, nuScenes-C image corruption, adverse weather perception.
+Nếu chọn T2, LiDAR mất thông tin ở mức nào?
+
+Packet loss, point dropout, fog/rain, motion distortion và lỗi phản xạ có thể làm mất vật thể nhỏ hoặc tạo map sai. Dùng point cloud mẫu hoặc điểm tổng hợp; lần lượt thêm dropout, Gaussian noise, missing beams hoặc motion smear. Đo point density theo khoảng cách; nếu có nhãn/cụm tham chiếu, đo thêm object recall hoặc cluster count. Đầu ra là hình point cloud trước/sau và plot mức corruption so với metric. Mở rộng: so sánh camera-only, LiDAR-only, fusion nếu đã có code. Từ khóa: nuScenes-C LiDAR corruption, KITTI-C LiDAR, Robo3D, point cloud corruption robustness, LiDAR fog rain benchmark.
+Nếu chọn T3, lệch calibration ảnh hưởng tới fusion thế nào?
+
+Rung, tháo lắp hoặc va chạm nhẹ có thể làm sai extrinsic camera-LiDAR/radar dù từng sensor còn hoạt động. Từ baseline, perturb 0,5-2° yaw/pitch hoặc 2-10 cm translation; đo reprojection error hoặc association giữa 2D bbox và LiDAR points. Đầu ra là plot mức lệch so với lỗi chiếu/association và đề xuất dấu hiệu kích hoạt hiệu chuẩn lại. Mở rộng: đọc một repo targetless calibration và nêu input/output, điều kiện chạy, limitation. Từ khóa: targetless LiDAR camera calibration Galibr, CalibRefine, DF-Calib, online extrinsic calibration autonomous driving.
+Nếu chọn T4, lệch thời gian tạo sai số vị trí bao nhiêu?
+
+Các sensor không nhất thiết đo cùng lúc; vật thể hoặc ego đang di chuyển có thể khiến LiDAR projection lệch và radar target bị ghost. Tạo chuyển động 2D/3D đơn giản, thêm offset 50-200 ms, rồi đo sai vị trí trước/sau bù chuyển động. Với tốc độ gần như không đổi, kiểm tra xấp xỉ sai số vị trí ≈ tốc độ × độ lệch thời gian; ghi rõ khi giả định này không phù hợp. Nếu có dữ liệu phù hợp, đo thêm ghost rate hoặc trajectory residual. Đầu ra là timeline multi-sensor, công thức/plot sai số và ngưỡng đáng lo trong tình huống nhóm đặt ra. Mở rộng: thêm rolling-shutter line delay. Từ khóa: camera LiDAR time synchronization, rolling shutter camera IMU calibration, motion compensation LiDAR autonomous driving.
+Nếu chọn T5, pseudo-label radar được kiểm tra thế nào?
+
+Gán nhãn radar khó và tốn công; camera segmentation cùng LiDAR 3D box có thể hỗ trợ liên kết radar target. Không bắt buộc có radar raw: mô phỏng pipeline camera class + LiDAR 3D box → radar target association. Đo agreement score; chỉ tính precision/recall khi nhóm có nhãn tham chiếu hoặc nêu rõ bộ nhãn giả định. Đầu ra là sơ đồ pipeline và tiêu chí QA để tránh nhãn sai do calibration/time sync. Mở rộng: tìm dataset radar-camera-LiDAR và mô tả field, loại nhãn, task. Từ khóa: automatic annotation radar data camera LiDAR, 4D radar auto-labeling LiDAR detection, SemanticSpray++ radar labels.
+Nếu chọn T6, rangefinder drone báo lỗi khi nào?
+
+Drone landing/altitude hold phụ thuộc rangefinder; sonar/ToF có thể timeout, nhảy số, saturate dưới nắng hoặc gặp bề mặt phản xạ. Tạo chuỗi range/altitude có noise, timeout, stuck value và out-of-range. So sánh median filter, MAD/z-score hoặc Kalman filter đơn giản; đo range variance, timeout rate hoặc landing risk score theo cách nhóm định nghĩa. Đầu ra là plot raw so với filtered range, bảng phát hiện fault và quy tắc fallback khi lỗi ở mức S2/S3; nhóm phải định nghĩa các mức này và ngưỡng áp dụng. Mở rộng: so sánh sonar, ToF LiDAR, radar altimeter cho hạ cánh trong bụi/gió/ánh sáng mạnh. Từ khóa: PX4 rangefinder fault detection, Lidar-Lite PX4, sonar rangefinder drone landing, range sensor outlier filter.
+Nếu chọn T7, nhiều camera gây nghẽn ở đâu?
+
+Pipeline có thể chậm vì bandwidth, decode, resize hoặc queue latency chứ không chỉ vì model. Ước lượng dữ liệu thô bằng bandwidth = số camera × chiều rộng × chiều cao × FPS × bit/pixel; ghi rõ bit/pixel và đổi đơn vị nhất quán. Nếu có webcam, đo FPS, latency, dropped frames và CPU/GPU load ở 2-3 độ phân giải. Đầu ra là bảng cấu hình so với FPS/latency/drop frame và đề xuất interface phù hợp. Mở rộng: phác sensor stack 4-8 camera với compute budget cố định. Từ khóa: Jetson multi camera CSI bandwidth, USB3 Vision bandwidth, GigE camera bandwidth, GMSL2 multi camera robotics.
+Nếu chọn T8, clip hiếm nào đáng gán nhãn trước?
+
+Data loop cần tìm clip khó như night, glare, rain, LiDAR low density, radar ghost hoặc nghi ngờ lệch calibration. Tạo dataframe log giả lập với weather, time, health metrics, detector confidence và near-miss flag; viết quy tắc/query chọn top-k clip. Đo slice coverage hoặc failure discovery rate nếu bảng log có trường cần thiết. Đầu ra là bảng clip được chọn, lý do chọn và lợi ích kỳ vọng cho retraining/benchmark. Mở rộng: tăng độ phủ rare case mà không lấy quá nhiều frame gần trùng. Từ khóa: rare case mining autonomous driving, data loop ADAS, sensor health monitoring, active learning autonomous driving.
+
+Tự kiểm tra: Nhóm có thể mở log, ảnh hoặc plot và chỉ đúng giá trị metric ở baseline cùng ít nhất một điều kiện lỗi. Nếu chỉ có sơ đồ hoặc ý tưởng, benchmark chưa đạt yêu cầu chạy được của đề lab.
+
+Bước 5 · Giải thích failure case và chọn cải tiến
+
+Thời gian: 95-115 phút. Kết quả cần có: Một failure case cụ thể, limitation và đề xuất cải tiến có liên hệ với số đo.
+Kết quả nào là quan sát, kết quả nào chỉ là suy luận?
+
+Một failure case không phải danh sách lỗi sensor có thể xảy ra. Nó cần nêu điều kiện đầu vào, tác động tới metric và hệ quả với thuật toán/tính năng. Ví dụ, nếu nhóm chỉ đo mật độ điểm LiDAR, có thể nói mật độ điểm giảm ở mức dropout đã thử. Không thể tự kết luận object recall của một detector chưa chạy giảm một tỷ lệ cụ thể. Những nhận xét về rủi ro của detector hoặc SLAM cần được ghi là suy luận kỹ thuật, trừ khi nhóm đã đo trực tiếp.
+
+Đặt kết quả lớp học cạnh limitation của paper/repo. Dữ liệu tổng hợp, ít mẫu, thiếu ground truth, không đo latency end-to-end hoặc phần cứng khác điều kiện thật đều giới hạn phạm vi kết luận. Mục đích không phải phủ nhận bài thử nhỏ, mà để chọn phép thử hoặc log tiếp theo có ích. Đề xuất cải tiến nên nối trực tiếp với failure vừa thấy: thêm health score cho frame xấu, kiểm tra timestamp, kích hoạt calibration, fallback rangefinder hoặc chọn clip cần gán nhãn.
+
+    1. Chọn một hàng kết quả hoặc một frame/clip thể hiện lỗi rõ nhất. Ghi chính xác cấu hình, metric và bằng chứng tương ứng.
+    2. Viết hai câu tách biệt: “Nhóm quan sát được…” cho kết quả tự đo; “Paper/repo cho biết…” cho kết luận từ nguồn. Nếu nguồn và phép thử không cùng dataset/metric, đừng ghép hai con số như thể so sánh trực tiếp.
+    3. Nêu limitation của phương pháp hoặc benchmark lớp học và xác định điều nhóm chưa đo được. Ghi một giả thuyết về nguyên nhân nếu cần, nhưng đánh dấu đó là giả thuyết.
+    4. Đề xuất một cải tiến hoặc fallback rồi chỉ ra metric/log nào sẽ dùng để kiểm tra cải tiến trong vòng thử tiếp theo.
+
+Câu cần trả lời	Bằng chứng nhóm đưa ra
+Sensor gặp lỗi gì, ở mức nào?	Tham số lỗi, mẫu/clip, ảnh hoặc log
+Metric thay đổi ra sao?	Số baseline, số khi lỗi, đơn vị
+Thuật toán/tính năng bị ảnh hưởng thế nào?	Kết quả đo trực tiếp hoặc suy luận được gắn nhãn
+Phương pháp còn hạn chế ở đâu?	Limitation từ paper/repo hoặc từ phép thử lớp học
+Nên làm gì tiếp?	Cải tiến/fallback và cách kiểm chứng
+
+Tự kiểm tra: Một người nghe có thể nhận biết câu nào nhóm đã đo, câu nào nguồn đã báo cáo và câu nào chỉ là giả thuyết. Nếu ba loại câu còn trộn lẫn, sửa trước khi làm slide.
+
+Bước 6 · Hoàn thiện báo cáo và pitch
+
+Thời gian: 115-120 phút chuẩn bị; sau đó trình bày 3-5 phút/nhóm. Kết quả cần có: Bản báo cáo hoặc slide ngắn của từng thành viên, đủ để người khác kiểm tra đường đi từ bài toán tới quyết định kỹ thuật.
+Một trang cần trả lời những gì?
+
+Giữ báo cáo theo năm mục của PDF. Problem nêu nền tảng, tính năng, sensor và failure thực tế. Method nêu paper/repo/thuật toán, input, output và giả định. Benchmark ghi dữ liệu thật hay tổng hợp, cấu hình, metric và kết quả số. Failure case chỉ một tình huống đã phân tích. Engineering decision nêu log, fallback hoặc dữ liệu cần tiếp theo. Đặt link nguồn, commit/version, dataset và lệnh chạy cạnh phần Method/Benchmark để người xem truy vết.
+
+    1. Chọn một bảng hoặc plot chính từ Bước 4. Gắn nhãn baseline, mức lỗi, đơn vị và nguồn dữ liệu. Đừng chỉ dán ảnh đẹp mà thiếu số đo.
+    2. Mỗi thành viên điền năm mục báo cáo bằng câu ngắn, bám bằng chứng chung của nhóm. Ghi rõ đâu là kết luận của paper/repo, đâu là kết quả nhóm tự benchmark.
+    3. Gắn một failure case và một cải tiến từ Bước 5 vào engineering decision. Người nghe cần thấy vì sao số đo dẫn tới quyết định đó.
+    4. Tập pitch 3-5 phút theo thứ tự problem → method → benchmark → failure → decision. Kiểm tra có thể mở log/ảnh/plot khi được hỏi nhóm đã chạy gì.
+
+Tiêu chí trong PDF	Tỷ trọng	Trước khi trình bày, tự đối chiếu
+Benchmark/demo chạy được	40%	Có code/log/ảnh/plot chứng minh đã chạy, không chỉ nêu ý tưởng.
+Hiểu failure thực tế	25%	Nói được nguyên nhân sensor suy giảm và ảnh hưởng tới thuật toán/tính năng.
+Giải thích thuật toán	20%	Tóm tắt paper/repo theo input, output, metric, limitation.
+Trình bày trade-off	15%	Nói được khi nào nên/không nên dùng phương án trong ADAS/robot/drone.
+
+Bản tự kiểm trước pitch:
+
+    Có nền tảng, tính năng và sensor cụ thể.
+    Có metric định lượng, baseline và điều kiện lỗi.
+    Có log/ảnh/plot và một failure case.
+    Có link nguồn, commit/version, dataset, lệnh chạy.
+    Phân biệt kết luận nguồn với kết quả nhóm tự đo.
+    Có một cải tiến hoặc fallback gắn với failure case.
+    Cả 5 thành viên có bản báo cáo/slide riêng để nộp.
+
+Tự kiểm tra cuối: Một người không tham gia nhóm có thể nhìn vào từng bản báo cáo/slide, tìm được metric, bằng chứng chạy và quyết định kỹ thuật. Khi phần trình bày đã rõ, hoàn thiện repository chung và lượt nộp cá nhân ở Bước 7.
+
+Bước 7 · Nộp bài trên VLearn
+
+Thời gian: Sau khi hoàn thiện sản phẩm. Kết quả cần có: Đủ 5 lượt nộp riêng trên VLearn; cả 5 lượt cùng dẫn tới repository chung của nhóm và bản báo cáo/slide của đúng người nộp.
+Dùng chung repository nhưng nộp riêng như thế nào?
+
+Code, cấu hình, dữ liệu được phép chia sẻ, log và plot của benchmark thuộc kết quả làm việc nhóm. Mỗi thành viên dùng cùng repository đó làm bằng chứng, nhưng tự nộp bản báo cáo hoặc slide ngắn của mình trên VLearn. Bản riêng cần chỉ rõ nguồn paper/repo, cách nhóm đo metric, failure case và engineering decision; người chấm phải tìm được bằng chứng chạy từ liên kết hoặc đường dẫn mà thành viên cung cấp.
+
+Đặt tên thư mục gốc của repository nhóm là K4-Track4-Day04-TenNhom-Sensor-Reality-Sprint, trong đó TenNhom được thay bằng tên nhóm. Tệp TEAMMATES.md nằm ở thư mục gốc và liệt kê họ tên đầy đủ, MSSV của đúng 5 thành viên. Danh sách này giúp đối chiếu 5 lượt nộp riêng với cùng một kết quả nhóm.
+
+K4-Track4-Day04-TenNhom-Sensor-Reality-Sprint/
+└── TEAMMATES.md
+
+Chép
+
+Lưu mã nguồn, cấu hình, log/plot và các bản báo cáo riêng trong cùng thư mục gốc này.
+
+    1. Hoàn thiện repository chung với mã nguồn hoặc cách chạy, log/ảnh/plot và tài liệu cần thiết để kiểm tra metric. Đặt TEAMMATES.md ở gốc và kiểm tra tệp có đúng 5 thành viên trước khi chia sẻ link.
+    2. Lưu 5 bản báo cáo/slide riêng của 5 thành viên trong repository chung. Trong mỗi bản, dẫn rõ bảng/plot và lệnh chạy chung mà nội dung dựa vào.
+    3. Từng thành viên nộp trên VLearn bản riêng của mình và URL repository chung. Cả 5 người dùng cùng URL repo; mỗi người phải hoàn tất lượt nộp của mình.
+    4. Kiểm tra lượt nộp sau khi gửi: mở lại tệp/link đã nộp, xác nhận người xem truy cập được bản riêng, TEAMMATES.md, metric, failure case và log/ảnh/plot. Đối chiếu rubric 40% demo, 25% failure, 20% thuật toán, 15% trade-off.
+
+Tự kiểm tra: Có đúng 5 tên trong TEAMMATES.md, 5 bản báo cáo/slide riêng và 5 lượt nộp trên VLearn. Mỗi lượt nộp phải dẫn tới bản riêng của đúng thành viên và cùng repository nhóm. Nếu chỉ thấy link repo mà không xác định được bản riêng hoặc bằng chứng benchmark, hãy bổ sung trước khi coi là hoàn tất.
